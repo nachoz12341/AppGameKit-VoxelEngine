@@ -1830,6 +1830,32 @@
             "rightid": 205
         }, 
         {
+			"name$": "Cactus",
+			"solid": 1,
+			"opaque": 0,
+			"joinface": 0,
+            "frontid": 70, 
+            "backid": 70, 
+            "upid": 69, 
+            "downid": 71, 
+            "leftid": 70, 
+            "rightid": 70,
+            "ModelType": 2
+        }, 
+        {
+			"name$": "Half Slab",
+			"solid": 1,
+			"opaque": 0,
+			"joinface": 0,
+            "frontid": 5, 
+            "backid": 5, 
+            "upid": 6, 
+            "downid": 6, 
+            "leftid": 5, 
+            "rightid": 5,
+            "ModelType": 1 
+        }, 
+        {
 			"solid": 0,
             "frontid": 255, 
             "backid": 255, 

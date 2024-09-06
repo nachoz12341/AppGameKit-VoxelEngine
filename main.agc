@@ -18,7 +18,7 @@ SetWindowAllowResize( 1 ) // allow the user to resize the window
 // set display properties
 SetVirtualResolution( 1024, 768 ) // doesn't have to match the window
 SetOrientationAllowed( 1, 1, 1, 1 ) // allow both portrait and landscape on mobile devices
-SetSyncRate( 0, 0 ) // 30fps instead of 60 to save battery
+SetSyncRate( 60, 0 ) // 30fps instead of 60 to save battery
 SetScissor( 0,0,0,0 ) // use the maximum available screen space, no black borders
 UseNewDefaultFonts( 1 )
 SetPrintSize(16)
@@ -67,7 +67,10 @@ SetObjectCollisionMode(PreviewObjectID,0)
 
 
 ChunkUpdateSwitch=1
+UpdateTime#=0.0
 do
+	StartTime#=GetMilliseconds()
+	
     OldCameraX#=GetCameraX(1)
     OldCameraY#=GetCameraY(1)
     OldCameraZ#=GetCameraZ(1)
@@ -194,10 +197,15 @@ do
 		Voxel_LoadBlockAttributes(filert$)
 		Message("Textures / subimages loaded from " + filert$)
 	endif
-
+	
+	NewTime#= GetMilliseconds()-StartTime#
+	if(NewTime#>0)
+		UpdateTime#=NewTime#
+	endif
 	// TODO A complete Logging by pressing any key
     print("FPS: "+str(ScreenFPS(),0)+ ", FrameTime: "+str(GetFrameTime(),5))
-	print("Local; "+str(LocalX)+","+str(LocalZ))
+    print("Update time: "+str(UpdateTime#))
+	/*print("Local; "+str(LocalX)+","+str(LocalZ))
 	print("HitInside; "+str(HitInsideX)+","+str(HitInsideY)+","+str(HitInsideZ))
 	print("HitOutside; "+str(HitOutsideX)+","+str(HitOutsideY)+","+str(HitOutsideZ))
 	print("Height; "+str(Height))
@@ -217,7 +225,7 @@ do
 	print("Save Time: "+str(Voxel_DebugSaveTime#))
 	print("Load Time: "+str(Voxel_DebugLoadTime#))
 	print("Sun Time: "+str(Voxel_DebugSunTime#))
-	print("Frontier Itterations: "+str(Voxel_DebugIterations))	
+	print("Frontier Itterations: "+str(Voxel_DebugIterations))	*/
 	
     Sync()
 loop

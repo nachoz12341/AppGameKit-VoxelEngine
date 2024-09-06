@@ -61,6 +61,8 @@ type WorldData
 	Chunk as ChunkData[-1,-1]
 endtype
 
+
+
 type ChunkData
 	SolidObjectID as integer
 	LooseObjectID as integer
@@ -72,6 +74,7 @@ type ChunkData
 	BlockFrontier as FrontierData[]
 	SunFrontier as FrontierData[]
 	FaceCulling as integer[-1,-1,-1]
+	FaceList as Core_Int4Data[-1]
 endtype
 
 type BorderData
@@ -444,6 +447,7 @@ function Voxel_SetFaceCulling(World ref as WorldData,GlobalX,GlobalY,GlobalZ,Fac
 endfunction
 
 function Voxel_UpdateChunks(World ref as WorldData,CameraX,CameraZ)	
+	StartTime#=GetMilliseconds()
 	Voxel_CameraChunkX=trunc(CameraX/Voxel_ChunkSize)
 	Voxel_CameraChunkZ=trunc(CameraZ/Voxel_ChunkSize)
 	
@@ -529,10 +533,11 @@ function Voxel_UpdateChunks(World ref as WorldData,CameraX,CameraZ)
 			next ChunkX
 		next Dist
 	endif
-	
-	Timer#=Timer()
-	if Timer#>Voxel_UpdateTimer#
-		Voxel_UpdateTimer#=Timer#+0.1
+	Time1#=GetMilliseconds()-StartTime#
+	StartTime#=GetMilliseconds()
+	//Timer#=Timer()
+	//if Timer#>Voxel_UpdateTimer#
+		//Voxel_UpdateTimer#=Timer#+0.1
 		
 		if Voxel_LoadChunkList.length>-1
 			ChunkX=Voxel_LoadChunkList[0].X
@@ -542,7 +547,7 @@ function Voxel_UpdateChunks(World ref as WorldData,CameraX,CameraZ)
 			Voxel_UpdateChunk(World,ChunkX,ChunkZ)
 			Voxel_LoadChunkList.remove(0)
 		endif
-		
+	
 		if Voxel_UnloadChunkList.length>-1
 			ChunkX=Voxel_UnloadChunkList[0].X
 			ChunkZ=Voxel_UnloadChunkList[0].Z
@@ -550,7 +555,7 @@ function Voxel_UpdateChunks(World ref as WorldData,CameraX,CameraZ)
 			Voxel_DeleteObject(World.Chunk[ChunkX,ChunkZ])
 			Voxel_UnloadChunkList.remove(0)
 		endif
-	endif
+	//endif
 endfunction
 
 function Voxel_DeleteObject(Chunk ref as ChunkData)	
@@ -593,11 +598,11 @@ function Voxel_GenerateChunk(Chunk ref as Chunkdata,ChunkX,ChunkZ)
 					BlockType=22 // Sand
 				endif
 				
-				Cave#=abs(GetNoiseXYZ(NoiseX/Voxel_Frecueny3DCave#,LocalY/Voxel_Frecueny3DCave#,NoiseZ/Voxel_Frecueny3DCave#))
+				/*Cave#=abs(GetNoiseXYZ(NoiseX/Voxel_Frecueny3DCave#,LocalY/Voxel_Frecueny3DCave#,NoiseZ/Voxel_Frecueny3DCave#))
 				if Cave#>0.75
 					BlockType=0
 					if LocalY=Chunk.Height[LocalX,LocalZ] then Chunk.Height[LocalX,LocalZ]=LocalY-1
-				endif
+				endif*/
 				
 				Chunk.SunLight[LocalX,LocalY,LocalZ]=Voxel_AmbientLight
 				Chunk.BlockLight[LocalX,LocalY,LocalZ]=Voxel_AmbientLight
@@ -610,14 +615,14 @@ function Voxel_GenerateChunk(Chunk ref as Chunkdata,ChunkX,ChunkZ)
 endfunction
 
 function Voxel_CalculateFaceCulling(World ref as WorldData,Chunk ref as Chunkdata,ChunkX,ChunkZ)
-	StartTime#=Timer()
+	StartTime#=GetMilliseconds()
 	
 	for LocalX=0 to Voxel_ChunkSize-1
 		for LocalZ=0 to Voxel_ChunkSize-1
 			WorldX=ChunkX*Voxel_ChunkSize+LocalX
 			WorldZ=ChunkZ*Voxel_ChunkSize+LocalZ
 			
-			//We loop through to only the heightest block around us
+			//We loop through to only the highest block around us
 			MaxHeight=Core_Max(Voxel_GetHeight(World,WorldX,WorldZ),Core_Max(Voxel_GetHeight(World,WorldX+1,WorldZ),Core_Max(Voxel_GetHeight(World,WorldX-1,WorldZ),Core_Max(Voxel_GetHeight(World,WorldX,WorldZ+1),Voxel_GetHeight(World,WorldX,WorldZ-1)))))+1
 			
 			for LocalY=0 to MaxHeight
@@ -632,35 +637,72 @@ function Voxel_CalculateFaceCulling(World ref as WorldData,Chunk ref as Chunkdat
 					LocalBlockUp=Voxel_GetBlockType(World,WorldX,LocalY+1,WorldZ)
 					LocalBlockDown=Voxel_GetBlockType(World,WorldX,LocalY-1,WorldZ)
 					
-					if(LocalBlockUp<>0 and not(Voxel_JoinFace(BlockType,LocalBlockUp)))
-						Voxel_SetFaceCulling(World,WorldX,LocalY+1,WorldZ,Voxel_GetFaceCulling(World,WorldX,LocalY+1,WorldZ) || 0x02)
+					if(LocalY+1<64 and LocalBlockUp<>0 and not(Voxel_JoinFace(BlockType,LocalBlockUp)))
+						//Voxel_SetFaceCulling(World,WorldX,LocalY+1,WorldZ,Voxel_GetFaceCulling(World,WorldX,LocalY+1,WorldZ) || 0x02)
+						FaceInt4Up as Core_Int4Data
+						FaceInt4Up.X = LocalX
+						FaceInt4Up.Y = LocalY+1
+						FaceInt4Up.Z = LocalZ
+						FaceInt4Up.W = FaceDown
+						Chunk.FaceList.insert(FaceInt4Up)
+						
 					endif
 					
-					if(LocalBlockDown<>0 and not(Voxel_JoinFace(BlockType,LocalBlockDown)))
-						Voxel_SetFaceCulling(World,WorldX,LocalY-1,WorldZ,Voxel_GetFaceCulling(World,WorldX,LocalY-1,WorldZ) || 0x01)
+					if(LocalY-1>=0 and LocalBlockDown<>0 and not(Voxel_JoinFace(BlockType,LocalBlockDown)))
+						//Voxel_SetFaceCulling(World,WorldX,LocalY-1,WorldZ,Voxel_GetFaceCulling(World,WorldX,LocalY-1,WorldZ) || 0x01)
+						FaceInt4Down as Core_Int4Data
+						FaceInt4Down.X = LocalX
+						FaceInt4Down.Y = LocalY-1
+						FaceInt4Down.Z = LocalZ
+						FaceInt4Down.W = FaceUp
+						Chunk.FaceList.insert(FaceInt4Down)
 					endif
 					
-					if(LocalBlockFront<>0 and not(Voxel_JoinFace(BlockType,LocalBlockFront)))
-						Voxel_SetFaceCulling(World,WorldX,LocalY,WorldZ+1,Voxel_GetFaceCulling(World,WorldX,LocalY,WorldZ+1) || 0x08)
+					if(LocalZ+1<Voxel_ChunkSize and LocalBlockFront<>0 and not(Voxel_JoinFace(BlockType,LocalBlockFront)))
+						//Voxel_SetFaceCulling(World,WorldX,LocalY,WorldZ+1,Voxel_GetFaceCulling(World,WorldX,LocalY,WorldZ+1) || 0x08)
+						FaceInt4Front as Core_Int4Data
+						FaceInt4Front.X = LocalX
+						FaceInt4Front.Y = LocalY
+						FaceInt4Front.Z = LocalZ+1
+						FaceInt4Front.W = FaceBack
+						Chunk.FaceList.insert(FaceInt4Front)
 					endif
 					
-					if(LocalBlockBack<>0 and not(Voxel_JoinFace(BlockType,LocalBlockBack)))
-						Voxel_SetFaceCulling(World,WorldX,LocalY,WorldZ-1,Voxel_GetFaceCulling(World,WorldX,LocalY,WorldZ-1) || 0x04)
+					if(LocalZ-1>=0 and LocalBlockBack<>0 and not(Voxel_JoinFace(BlockType,LocalBlockBack)))
+						//Voxel_SetFaceCulling(World,WorldX,LocalY,WorldZ-1,Voxel_GetFaceCulling(World,WorldX,LocalY,WorldZ-1) || 0x04)
+						FaceInt4Back as Core_Int4Data
+						FaceInt4Back.X = LocalX
+						FaceInt4Back.Y = LocalY
+						FaceInt4Back.Z = LocalZ-1
+						FaceInt4Back.W = FaceFront
+						Chunk.FaceList.insert(FaceInt4Back)
 					endif
 					
-					if(LocalBlockRight<>0 and not(Voxel_JoinFace(BlockType,LocalBlockRight)))
-						Voxel_SetFaceCulling(World,WorldX+1,LocalY,WorldZ,Voxel_GetFaceCulling(World,WorldX+1,LocalY,WorldZ) || 0x20)
+					if(LocalX+1<Voxel_ChunkSize and LocalBlockRight<>0 and not(Voxel_JoinFace(BlockType,LocalBlockRight)))
+						//Voxel_SetFaceCulling(World,WorldX+1,LocalY,WorldZ,Voxel_GetFaceCulling(World,WorldX+1,LocalY,WorldZ) || 0x20)
+						FaceInt4Right as Core_Int4Data
+						FaceInt4Right.X = LocalX+1
+						FaceInt4Right.Y = LocalY
+						FaceInt4Right.Z = LocalZ
+						FaceInt4Right.W = FaceLeft
+						Chunk.FaceList.insert(FaceInt4Right)
 					endif
 					
-					if(Voxel_IsOpaqueBlock(LocalBlockLeft)<>0 and not(Voxel_JoinFace(BlockType,LocalBlockLeft)))
-						Voxel_SetFaceCulling(World,WorldX-1,LocalY,WorldZ,Voxel_GetFaceCulling(World,WorldX-1,LocalY,WorldZ) || 0x10)
+					if(LocalX-1>=0 and Voxel_IsOpaqueBlock(LocalBlockLeft)<>0 and not(Voxel_JoinFace(BlockType,LocalBlockLeft)))
+						//Voxel_SetFaceCulling(World,WorldX-1,LocalY,WorldZ,Voxel_GetFaceCulling(World,WorldX-1,LocalY,WorldZ) || 0x10)
+						FaceInt4Left as Core_Int4Data
+						FaceInt4Left.X = LocalX-1
+						FaceInt4Left.Y = LocalY
+						FaceInt4Left.Z = LocalZ
+						FaceInt4Left.W = FaceRight
+						Chunk.FaceList.insert(FaceInt4Left)
 					endif				
 				endif
 			next LocalY
 		next LocalZ
 	next LocalX
 	
-	Voxel_DebugFaceCullingTime#=Timer()-StartTime#
+	Voxel_DebugFaceCullingTime#=GetMilliseconds()-StartTime#
 	Log("Face Culling: "+str(Voxel_DebugFaceCullingTime#))
 endfunction
 
@@ -1138,26 +1180,61 @@ function Voxel_RemoveCubeListFromObject(World ref as WorldData,CubeList as Core_
 endfunction
 
 function Voxel_UpdateChunk(World ref as WorldData,ChunkX,ChunkZ)
-	StartTime#=Timer()
+	StartTime#=GetMilliseconds()
 	
 	Voxel_TempChunk=World.Chunk[ChunkX,ChunkZ]
-	for LocalX=0 to Voxel_ChunkSize-1
-		for LocalZ=0 to Voxel_ChunkSize-1
-			for LocalY=1 to Voxel_TempChunk.Height[LocalX,LocalZ]
-				BlockType=Voxel_TempChunk.BlockType[LocalX,LocalY,LocalZ]
-				if BlockType<>0
-					GlobalX=ChunkX*Voxel_ChunkSize+LocalX
-					GlobalZ=ChunkZ*Voxel_ChunkSize+LocalZ
-					if Voxel_Blocks.Attributes[BlockType-1].Solid=1
-						Voxel_GenerateModelType(Voxel_TempSolidMesh,World,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,BlockType-1)
-					else
-						Voxel_GenerateModelType(Voxel_TempLooseMesh,World,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,BlockType-1)
-					endif	
-					
-				endif
-			next LocalY
-		next LocalZ
-	next LocalX
+	iter=0
+	while World.Chunk[ChunkX,ChunkZ].FaceList.length>=0
+			inc iter
+			
+			LocalX = World.Chunk[ChunkX,ChunkZ].FaceList[0].X
+			LocalY = World.Chunk[ChunkX,ChunkZ].FaceList[0].Y
+			LocalZ = World.Chunk[ChunkX,ChunkZ].FaceList[0].Z
+			LocalFace = World.Chunk[ChunkX,ChunkZ].FaceList[0].W
+			World.Chunk[ChunkX,ChunkZ].FaceList.remove(0)
+			
+			GlobalX=ChunkX*Voxel_ChunkSize+LocalX
+			GlobalZ=ChunkZ*Voxel_ChunkSize+LocalZ
+			
+			OffX = (LocalFace=FaceRight)-(LocalFace=FaceLeft)
+			OffY = (LocalFace=FaceUp)-(LocalFace=FaceDown)
+			OffZ = (LocalFace=FaceFront)-(LocalFace=FaceBack)
+			
+			BlockType=Voxel_TempChunk.BlockType[LocalX,LocalY,LocalZ]-1
+			Flipped=1			
+			LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX+OffX,LocalY+OffY,GlobalZ+OffZ),Voxel_GetSunLight(World,GlobalX+OffX,LocalY+OffY,GlobalZ+OffZ))/15.0*255
+			A00=LightValue//-A00
+			A01=LightValue//-A01
+			A10=LightValue//-A10
+			A11=LightValue//-A11
+			
+			TempSubimage as SubimageData
+			
+			select LocalFace
+				case FaceUp
+					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].UpID]
+				endcase
+				case FaceDown
+					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].DownID]
+				endcase
+				case FaceFront
+					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].FrontID]
+				endcase
+				case FaceBack
+					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].BackID]
+				endcase
+				case FaceRight
+					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].RightID]
+				endcase
+				case FaceLeft
+					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].LeftID]
+				endcase
+			endselect
+			
+			
+			Voxel_AddFaceToObject(Voxel_TempSolidMesh,TempSubimage,LocalX,LocalY,LocalZ,LocalFace,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+	endwhile
+	Log("Chunk Mesh time: "+str(GetMilliseconds()-StartTime#)+" iter: "+str(iter))
 	
 	if Voxel_TempSolidMesh.Vertex.length>1
 		if World.Chunk[ChunkX,ChunkZ].SolidObjectID=0
@@ -1169,6 +1246,7 @@ function Voxel_UpdateChunk(World ref as WorldData,ChunkX,ChunkZ)
 			Voxel_UpdateObject(Voxel_TempSolidMesh,World.Chunk[ChunkX,ChunkZ].SolidObjectID,ChunkX,ChunkZ)
 		endif
 	endif
+	
 	if Voxel_TempLooseMesh.Vertex.length>1
 		if World.Chunk[ChunkX,ChunkZ].LooseObjectID=0
 			ObjectID=Voxel_CreateObject(Voxel_TempLooseMesh,ChunkX,ChunkZ)
@@ -1181,7 +1259,7 @@ function Voxel_UpdateChunk(World ref as WorldData,ChunkX,ChunkZ)
 		endif
 	endif
 	
-	Voxel_DebugChunkTime#=Timer()-StartTime#
+	Voxel_DebugChunkTime#=GetMilliseconds()-StartTime#
 	Log("Chunk Time: "+str(Voxel_DebugChunkTime#))
 endfunction
 
@@ -1617,7 +1695,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 	//if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
 	
 	if BlockCulling&&0x01=0x01
-		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ  ))=0)
+		/*side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ  ))=0)
 		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ  ))=0)
 		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY+1,GlobalZ+1))=0)
 		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY+1,GlobalZ-1))=0)
@@ -1630,16 +1708,16 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A00=Voxel_GetVertexAO(side10,side00,corner00)
 		A01=Voxel_GetVertexAO(side10,side01,corner01)
 		A10=Voxel_GetVertexAO(side11,side01,corner11)
-		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)*/
 		
 		Flipped=0
-		if A00+A10>A01+A11 then Flipped=1
+		//if A00+A10>A01+A11 then Flipped=1
 		
 		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY+1,GlobalZ),Voxel_GetSunLight(World,GlobalX,LocalY+1,GlobalZ))/15.0*255
-		A00=LightValue-A00
-		A01=LightValue-A01
-		A10=LightValue-A10
-		A11=LightValue-A11
+		A00=LightValue//-A00
+		A01=LightValue//-A01
+		A10=LightValue//-A10
+		A11=LightValue//-A11
 		
 		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceUp],LocalX,LocalY,LocalZ,FaceUp,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
 	endif
@@ -1647,7 +1725,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 	//NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY-1,GlobalZ)
 	//if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
 	if BlockCulling&&0x02=0x02
-		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ  ))=0)
+		/*side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ  ))=0)
 		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ  ))=0)
 		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY-1,GlobalZ+1))=0)
 		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY-1,GlobalZ-1))=0)
@@ -1660,16 +1738,16 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A00=Voxel_GetVertexAO(side10,side00,corner00)
 		A01=Voxel_GetVertexAO(side10,side01,corner01)
 		A10=Voxel_GetVertexAO(side11,side01,corner11)
-		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)*/
 		
 		Flipped=1
-		if A00+A10<A01+A11 then Flipped=0
+		//if A00+A10<A01+A11 then Flipped=0
 		
 		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY-1,GlobalZ),Voxel_GetSunLight(World,GlobalX,LocalY-1,GlobalZ))/15.0*255
-		A00=LightValue-A00
-		A01=LightValue-A01
-		A10=LightValue-A10
-		A11=LightValue-A11
+		A00=LightValue//-A00
+		A01=LightValue//-A01
+		A10=LightValue//-A10
+		A11=LightValue//-A11
 		
 		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceDown],LocalX,LocalY,LocalZ,FaceDown,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
 	endif
@@ -1677,7 +1755,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 	//NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY,GlobalZ+1)
 	//if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
 	if BlockCulling&&0x04=0x04
-		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ+1))=0)
+		/*side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ+1))=0)
 		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ+1))=0)
 		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY+1,GlobalZ+1))=0)
 		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY-1,GlobalZ+1))=0)
@@ -1690,16 +1768,16 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A00=Voxel_GetVertexAO(side10,side00,corner00)
 		A01=Voxel_GetVertexAO(side10,side01,corner01)
 		A10=Voxel_GetVertexAO(side11,side01,corner11)
-		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)*/
 		
 		Flipped=0
-		if A00+A10>A01+A11 then Flipped=1
+		//if A00+A10>A01+A11 then Flipped=1
 		
 		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ+1),Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ+1))/15.0*255
-		A00=LightValue-A00
-		A01=LightValue-A01
-		A10=LightValue-A10
-		A11=LightValue-A11
+		A00=LightValue//-A00
+		A01=LightValue//-A01
+		A10=LightValue//-A10
+		A11=LightValue//-A11
 		
 		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceFront],LocalX,LocalY,LocalZ,FaceFront,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
 	endif
@@ -1707,7 +1785,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 	//NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY,GlobalZ-1)
 	//if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
 	if BlockCulling&&0x08=0x08
-		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ-1))=0)
+		/*side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ-1))=0)
 		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ-1))=0)
 		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY+1,GlobalZ-1))=0)
 		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY-1,GlobalZ-1))=0)
@@ -1720,16 +1798,16 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A00=Voxel_GetVertexAO(side10,side00,corner00)
 		A01=Voxel_GetVertexAO(side10,side01,corner01)
 		A10=Voxel_GetVertexAO(side11,side01,corner11)
-		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)*/
 		
 		Flipped=1
-		if A00+A10<A01+A11 then Flipped=0
+		//if A00+A10<A01+A11 then Flipped=0
 		
 		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ-1),Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ-1))/15.0*255
-		A00=LightValue-A00
-		A01=LightValue-A01
-		A10=LightValue-A10
-		A11=LightValue-A11
+		A00=LightValue//-A00
+		A01=LightValue//-A01
+		A10=LightValue//-A10
+		A11=LightValue//-A11
 		
 		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceBack],LocalX,LocalY,LocalZ,FaceBack,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
 	endif
@@ -1737,7 +1815,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 	//NeighbourBlockType=Voxel_GetBlockType(World,GlobalX+1,LocalY,GlobalZ)
 	//if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
 	if BlockCulling&&0x10=0x10
-		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ+1))=0)
+		/*side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ+1))=0)
 		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ-1))=0)
 		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ  ))=0)
 		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ  ))=0)
@@ -1750,16 +1828,16 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A00=Voxel_GetVertexAO(side10,side00,corner00)
 		A01=Voxel_GetVertexAO(side10,side01,corner01)
 		A10=Voxel_GetVertexAO(side11,side01,corner11)
-		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)*/
 		
 		Flipped=1
-		if A00+A10<A01+A11 then Flipped=0
+		//if A00+A10<A01+A11 then Flipped=0
 		
 		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX+1,LocalY,GlobalZ),Voxel_GetSunLight(World,GlobalX+1,LocalY,GlobalZ))/15.0*255
-		A00=LightValue-A00
-		A01=LightValue-A01
-		A10=LightValue-A10
-		A11=LightValue-A11
+		A00=LightValue//-A00
+		A01=LightValue//-A01
+		A10=LightValue//-A10
+		A11=LightValue//-A11
 		
 		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceLeft],LocalX,LocalY,LocalZ,FaceRight,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
 	endif
@@ -1767,7 +1845,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 	//NeighbourBlockType=Voxel_GetBlockType(World,GlobalX-1,LocalY,GlobalZ)
 	//if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
 	if BlockCulling&&0x20=0x20
-		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ-1))=0)
+		/*side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ-1))=0)
 		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ+1))=0)
 		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ  ))=0)
 		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ  ))=0)
@@ -1780,16 +1858,16 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A00=Voxel_GetVertexAO(side10,side00,corner00)
 		A01=Voxel_GetVertexAO(side10,side01,corner01)
 		A10=Voxel_GetVertexAO(side11,side01,corner11)
-		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)*/
 		
 		Flipped=1
-		if A00+A10<A01+A11 then Flipped=0
+		//if A00+A10<A01+A11 then Flipped=0
 		
 		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX-1,LocalY,GlobalZ),Voxel_GetSunLight(World,GlobalX-1,LocalY,GlobalZ))/15.0*255
-		A00=LightValue-A00
-		A01=LightValue-A01
-		A10=LightValue-A10
-		A11=LightValue-A11
+		A00=LightValue//-A00
+		A01=LightValue//-A01
+		A10=LightValue//-A10
+		A11=LightValue//-A11
 		
 		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceRight],LocalX,LocalY,LocalZ,FaceLeft,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
 	endif
@@ -1802,16 +1880,15 @@ endfunction Result
 
 // Populate the MeshObject with Data
 function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageData,X,Y,Z,FaceDir,A00,A01,A10,A11,Flipped,XOffset#,YOffset#,ZOffset#,XScale#,YScale#,ZScale#,UScale#,VScale#)
-	HalfFaceSize#=0.5	
 	TextureSize#=256
-	Scale#=1.0/16.0
+	Scale#=0.0625 //1/16
 	
-	X1# = X-HalfFaceSize#+(XOffset#*Scale#)
-	X2# = X-HalfFaceSize#+(XOffset#*Scale#)+(HalfFaceSize#*XScale#*2)
-	Y1# = Y-HalfFaceSize#+(YOffset#*Scale#)
-	Y2# = Y-HalfFaceSize#+(YOffset#*Scale#)+(HalfFaceSize#*YScale#*2)
-	Z1# = Z-HalfFaceSize#+(ZOffset#*Scale#)
-	Z2# = Z-HalfFaceSize#+(ZOffset#*Scale#)+(HalfFaceSize#*ZScale#*2)
+	X1# = X+(XOffset#*Scale#)
+	X2# = X+(XOffset#*Scale#)+XScale#
+	Y1# = Y+(YOffset#*Scale#)
+	Y2# = Y+(YOffset#*Scale#)+YScale#
+	Z1# = Z+(ZOffset#*Scale#)
+	Z2# = Z+(ZOffset#*Scale#)+ZScale#
 	
 	Select FaceDir
 		case FaceUp

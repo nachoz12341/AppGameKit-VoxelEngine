@@ -40,6 +40,13 @@ type Core_Int2XZData
 	Z as integer
 endtype
 
+type Core_Int4Data
+    X as integer
+    Y as integer
+    Z as integer
+    W as integer
+endtype
+
 function Core_Vector3DTo2D(Vector3D as Core_Vec3Data)
 	local Vector2D as Core_Vec2Data
 	Vector2D.X#=Vector3D.X#

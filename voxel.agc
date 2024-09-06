@@ -1201,40 +1201,133 @@ function Voxel_UpdateChunk(World ref as WorldData,ChunkX,ChunkZ)
 			OffZ = (LocalFace=FaceFront)-(LocalFace=FaceBack)
 			
 			BlockType=Voxel_TempChunk.BlockType[LocalX,LocalY,LocalZ]-1
-			Flipped=1			
+			Flipped=0			
 			LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX+OffX,LocalY+OffY,GlobalZ+OffZ),Voxel_GetSunLight(World,GlobalX+OffX,LocalY+OffY,GlobalZ+OffZ))/15.0*255
-			A00=LightValue//-A00
-			A01=LightValue//-A01
-			A10=LightValue//-A10
-			A11=LightValue//-A11
-			
+		
 			TempSubimage as SubimageData
+			
+			side00 as integer
+			side01 as integer
+			side10 as integer
+			side11 as integer
+			corner00 as integer
+			corner01 as integer
+			corner10 as integer
+			corner11 as integer
 			
 			select LocalFace
 				case FaceUp
 					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].UpID]
+					
+					side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ  ))=0)
+					side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ  ))=0)
+					side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY+1,GlobalZ+1))=0)
+					side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY+1,GlobalZ-1))=0)
+					
+					corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ+1))=0)
+					corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ+1))=0)
+					corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ-1))=0)
+					corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ-1))=0)
+					
+					Flipped=0
+					if A00+A10>A01+A11 then Flipped=1
 				endcase
 				case FaceDown
 					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].DownID]
+					
+					side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ  ))=0)
+					side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ  ))=0)
+					side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY-1,GlobalZ+1))=0)
+					side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY-1,GlobalZ-1))=0)
+					
+					corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ+1))=0)
+					corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ+1))=0)
+					corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ-1))=0)
+					corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ-1))=0)
+					
+					Flipped=1
+					if A00+A10<A01+A11 then Flipped=0
 				endcase
 				case FaceFront
 					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].FrontID]
+					side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ+1))=0)
+					side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ+1))=0)
+					side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY+1,GlobalZ+1))=0)
+					side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY-1,GlobalZ+1))=0)
+					
+					corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ+1))=0)
+					corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ+1))=0)
+					corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ+1))=0)
+					corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ+1))=0)
+					
+					Flipped=0
+					if A00+A10>A01+A11 then Flipped=1
 				endcase
 				case FaceBack
 					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].BackID]
+					side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ-1))=0)
+					side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ-1))=0)
+					side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY+1,GlobalZ-1))=0)
+					side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY-1,GlobalZ-1))=0)
+					
+					corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ-1))=0)
+					corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ-1))=0)
+					corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ-1))=0)
+					corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ-1))=0)
+					
+					Flipped=1
+					if A00+A10<A01+A11 then Flipped=0
 				endcase
 				case FaceRight
 					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].RightID]
+			
+					side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ+1))=0)
+					side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ-1))=0)
+					side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ  ))=0)
+					side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ  ))=0)
+					
+					corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ+1))=0)
+					corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ-1))=0)
+					corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ+1))=0)
+					corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ-1))=0)
+					Flipped=1
+					if A00+A10<A01+A11 then Flipped=0
 				endcase
 				case FaceLeft
 					TempSubimage = Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[BlockType].LeftID]
+					
+					side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ-1))=0)
+					side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ+1))=0)
+					side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ  ))=0)
+					side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ  ))=0)
+					
+					corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ-1))=0)
+					corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ+1))=0)
+					corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ-1))=0)
+					corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ+1))=0)
+					
+					Flipped=1
+					if A00+A10<A01+A11 then Flipped=0
 				endcase
 			endselect
 			
+			A00=Voxel_GetVertexAO(side10,side00,corner00)
+			A01=Voxel_GetVertexAO(side10,side01,corner01)
+			A10=Voxel_GetVertexAO(side11,side01,corner11)
+			A11=Voxel_GetVertexAO(side11,side00,corner10)
 			
-			Voxel_AddFaceToObject(Voxel_TempSolidMesh,TempSubimage,LocalX,LocalY,LocalZ,LocalFace,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+			A00=LightValue-A00
+			A01=LightValue-A01
+			A10=LightValue-A10
+			A11=LightValue-A11
+			
+			if Voxel_Blocks.Attributes[BlockType].Solid=1
+				Voxel_AddFaceToObject(Voxel_TempSolidMesh,TempSubimage,LocalX,LocalY,LocalZ,LocalFace,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+			else
+				Voxel_AddFaceToObject(Voxel_TempLooseMesh,TempSubimage,LocalX,LocalY,LocalZ,LocalFace,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+			endif
 	endwhile
-	Log("Chunk Mesh time: "+str(GetMilliseconds()-StartTime#)+" iter: "+str(iter))
+	//Log("Chunk Mesh time: "+str(GetMilliseconds()-StartTime#)+" iter: "+str(iter))
 	
 	if Voxel_TempSolidMesh.Vertex.length>1
 		if World.Chunk[ChunkX,ChunkZ].SolidObjectID=0

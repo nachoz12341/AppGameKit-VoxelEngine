@@ -8,6 +8,11 @@
 #constant TERRAIN_JSON = "terrain.json"
 #constant PREVIEW_IMG = "preview.png"
 
+//Model Constants
+#constant MODEL_DEFAULT 0
+#constant MODEL_SLAB 1
+#constant MODEL_CACTUS 2
+
 // Keymapping
 
 #constant KEY_BACK 8

@@ -49,6 +49,7 @@ type BlockAttributeData
 	DownOffset# as float
 	LeftOffset# as float
 	RightOffset# as float
+	ModelType as integer
 endtype
 
 type BlockData
@@ -1060,10 +1061,11 @@ function Voxel_UpdateChunk(World ref as WorldData,ChunkX,ChunkZ)
 					GlobalX=ChunkX*Voxel_ChunkSize+LocalX
 					GlobalZ=ChunkZ*Voxel_ChunkSize+LocalZ
 					if Voxel_Blocks.Attributes[BlockType-1].Solid=1
-						Voxel_GenerateCubeFaces(Voxel_TempSolidMesh,World,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,BlockType-1)
+						Voxel_GenerateModelType(Voxel_TempSolidMesh,World,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,BlockType-1)
 					else
-						Voxel_GenerateCubeFaces(Voxel_TempLooseMesh,World,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,BlockType-1)
-					endif
+						Voxel_GenerateModelType(Voxel_TempLooseMesh,World,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,BlockType-1)
+					endif	
+					
 				endif
 			next LocalY
 		next LocalZ
@@ -1123,10 +1125,24 @@ function Voxel_UpdateObject(TempMesh ref as MeshData,ObjectID,ChunkX,ChunkZ)
 	Voxel_DebugMeshTime#=Timer()-StartTime#
 endfunction
 
-function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,AttributeID)	
+function Voxel_GenerateModelType(Object ref as MeshData,World ref as WorldData,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,BlockType)
+	select Voxel_Blocks.Attributes[BlockType].ModelType	
+		case MODEL_CACTUS:
+			Voxel_GenerateCactusFaces(Object,World,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,BlockType)
+		endcase
+		case MODEL_SLAB:
+			Voxel_GenerateSlabFaces(Object,World,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,BlockType)
+		endcase
+		case default:
+			Voxel_GenerateCubeFaces(Object,World,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,BlockType)
+		endcase
+	endselect
+endfunction
+
+function Voxel_GenerateSlabFaces(Object ref as MeshData,World ref as WorldData,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,AttributeID)	
 	local LightValue as integer
 	
-	Voxel_TempSubimages[FaceUP]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].UpID]
+	Voxel_TempSubimages[FaceUp]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].UpID]
 	Voxel_TempSubimages[FaceDown]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].DownID]
 	Voxel_TempSubimages[FaceBack]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].BackID]
 	Voxel_TempSubimages[FaceFront]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].FrontID]
@@ -1160,7 +1176,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A10=LightValue-A10
 		A11=LightValue-A11
 		
-		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[0],LocalX,LocalY,LocalZ,FaceUp,A00,A01,A10,A11,Flipped)
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceUp],LocalX,LocalY,LocalZ,FaceUp,A00,A01,A10,A11,Flipped,0,-8,0,1,1,1,1,1)
 	endif
 	
 	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY-1,GlobalZ)
@@ -1189,7 +1205,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A10=LightValue-A10
 		A11=LightValue-A11
 		
-		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[1],LocalX,LocalY,LocalZ,FaceDown,A00,A01,A10,A11,Flipped)
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceDown],LocalX,LocalY,LocalZ,FaceDown,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
 	endif
 	
 	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY,GlobalZ+1)
@@ -1218,7 +1234,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A10=LightValue-A10
 		A11=LightValue-A11
 		
-		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[2],LocalX,LocalY,LocalZ,FaceFront,A00,A01,A10,A11,Flipped)
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceFront],LocalX,LocalY,LocalZ,FaceFront,A00,A01,A10,A11,Flipped,0,0,0,1,0.5,1,1,0.5)
 	endif
 	
 	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY,GlobalZ-1)
@@ -1247,7 +1263,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A10=LightValue-A10
 		A11=LightValue-A11
 		
-		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[3],LocalX,LocalY,LocalZ,FaceBack,A00,A01,A10,A11,Flipped)
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceBack],LocalX,LocalY,LocalZ,FaceBack,A00,A01,A10,A11,Flipped,0,0,0,1,0.5,1,1,0.5)
 	endif
 	
 	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX+1,LocalY,GlobalZ)
@@ -1276,7 +1292,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A10=LightValue-A10
 		A11=LightValue-A11
 		
-		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[4],LocalX,LocalY,LocalZ,FaceRight,A00,A01,A10,A11,Flipped)
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceRight],LocalX,LocalY,LocalZ,FaceRight,A00,A01,A10,A11,Flipped,0,0,0,1,0.5,1,1,0.5)
 	endif
 	
 	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX-1,LocalY,GlobalZ)
@@ -1305,7 +1321,379 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A10=LightValue-A10
 		A11=LightValue-A11
 		
-		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[5],LocalX,LocalY,LocalZ,FaceLeft,A00,A01,A10,A11,Flipped)
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceLeft],LocalX,LocalY,LocalZ,FaceLeft,A00,A01,A10,A11,Flipped,0,0,0,1,0.5,1,1,0.5)
+	endif
+endfunction
+
+function Voxel_GenerateCactusFaces(Object ref as MeshData,World ref as WorldData,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,AttributeID)	
+	local LightValue as integer
+	
+	Voxel_TempSubimages[FaceUp]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].UpID]
+	Voxel_TempSubimages[FaceDown]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].DownID]
+	Voxel_TempSubimages[FaceBack]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].BackID]
+	Voxel_TempSubimages[FaceFront]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].FrontID]
+	Voxel_TempSubimages[FaceRight]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].RightID]
+	Voxel_TempSubimages[FaceLeft]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].LeftID]
+	
+	CurrentBlockType=Voxel_GetBlockType(World,GlobalX,LocalY,GlobalZ)
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY+1,GlobalZ)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ  ))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ  ))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY+1,GlobalZ+1))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY+1,GlobalZ-1))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ+1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ+1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ-1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ-1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=0
+		if A00+A10>A01+A11 then Flipped=1
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY+1,GlobalZ),Voxel_GetSunLight(World,GlobalX,LocalY+1,GlobalZ))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceUp],LocalX,LocalY,LocalZ,FaceUp,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+	endif
+	
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY-1,GlobalZ)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ  ))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ  ))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY-1,GlobalZ+1))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY-1,GlobalZ-1))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ+1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ+1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ-1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ-1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=1
+		if A00+A10<A01+A11 then Flipped=0
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY-1,GlobalZ),Voxel_GetSunLight(World,GlobalX,LocalY-1,GlobalZ))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceDown],LocalX,LocalY,LocalZ,FaceDown,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+	endif
+	
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY,GlobalZ+1)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ+1))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ+1))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY+1,GlobalZ+1))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY-1,GlobalZ+1))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ+1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ+1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ+1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ+1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=0
+		if A00+A10>A01+A11 then Flipped=1
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ+1),Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ+1))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceFront],LocalX,LocalY,LocalZ,FaceFront,A00,A01,A10,A11,Flipped,0,0,-1,1,1,1,1,1)
+	endif
+	
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY,GlobalZ-1)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ-1))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ-1))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY+1,GlobalZ-1))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY-1,GlobalZ-1))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ-1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ-1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ-1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ-1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=1
+		if A00+A10<A01+A11 then Flipped=0
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ-1),Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ-1))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceBack],LocalX,LocalY,LocalZ,FaceBack,A00,A01,A10,A11,Flipped,0,0,1,1,1,1,1,1)
+	endif
+	
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX+1,LocalY,GlobalZ)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ+1))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ-1))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ  ))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ  ))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ+1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ-1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ+1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ-1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=1
+		if A00+A10<A01+A11 then Flipped=0
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX+1,LocalY,GlobalZ),Voxel_GetSunLight(World,GlobalX+1,LocalY,GlobalZ))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceRight],LocalX,LocalY,LocalZ,FaceRight,A00,A01,A10,A11,Flipped,-1,0,0,1,1,1,1,1)
+	endif
+	
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX-1,LocalY,GlobalZ)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ-1))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ+1))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ  ))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ  ))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ-1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ+1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ-1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ+1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=1
+		if A00+A10<A01+A11 then Flipped=0
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX-1,LocalY,GlobalZ),Voxel_GetSunLight(World,GlobalX-1,LocalY,GlobalZ))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceLeft],LocalX,LocalY,LocalZ,FaceLeft,A00,A01,A10,A11,Flipped,1,0,0,1,1,1,1,1)
+	endif
+endfunction
+
+function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,LocalX,LocalY,LocalZ,GlobalX,GlobalZ,AttributeID)	
+	local LightValue as integer
+	
+	Voxel_TempSubimages[FaceUp]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].UpID]
+	Voxel_TempSubimages[FaceDown]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].DownID]
+	Voxel_TempSubimages[FaceBack]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].BackID]
+	Voxel_TempSubimages[FaceFront]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].FrontID]
+	Voxel_TempSubimages[FaceRight]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].RightID]
+	Voxel_TempSubimages[FaceLeft]=Voxel_Blocks.Subimages[Voxel_Blocks.Attributes[AttributeID].LeftID]
+	
+	CurrentBlockType=Voxel_GetBlockType(World,GlobalX,LocalY,GlobalZ)
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY+1,GlobalZ)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ  ))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ  ))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY+1,GlobalZ+1))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY+1,GlobalZ-1))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ+1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ+1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ-1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ-1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=0
+		if A00+A10>A01+A11 then Flipped=1
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY+1,GlobalZ),Voxel_GetSunLight(World,GlobalX,LocalY+1,GlobalZ))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceUp],LocalX,LocalY,LocalZ,FaceUp,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+	endif
+	
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY-1,GlobalZ)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ  ))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ  ))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY-1,GlobalZ+1))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX,  LocalY-1,GlobalZ-1))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ+1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ+1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ-1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ-1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=1
+		if A00+A10<A01+A11 then Flipped=0
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY-1,GlobalZ),Voxel_GetSunLight(World,GlobalX,LocalY-1,GlobalZ))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceDown],LocalX,LocalY,LocalZ,FaceDown,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+	endif
+	
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY,GlobalZ+1)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ+1))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ+1))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY+1,GlobalZ+1))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY-1,GlobalZ+1))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ+1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ+1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ+1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ+1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=0
+		if A00+A10>A01+A11 then Flipped=1
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ+1),Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ+1))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceFront],LocalX,LocalY,LocalZ,FaceFront,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+	endif
+	
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY,GlobalZ-1)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ-1))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ-1))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY+1,GlobalZ-1))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX  ,LocalY-1,GlobalZ-1))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ-1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ-1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ-1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ-1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=1
+		if A00+A10<A01+A11 then Flipped=0
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ-1),Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ-1))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceBack],LocalX,LocalY,LocalZ,FaceBack,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+	endif
+	
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX+1,LocalY,GlobalZ)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ+1))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY  ,GlobalZ-1))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ  ))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ  ))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ+1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY+1,GlobalZ-1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ+1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX+1,LocalY-1,GlobalZ-1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=1
+		if A00+A10<A01+A11 then Flipped=0
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX+1,LocalY,GlobalZ),Voxel_GetSunLight(World,GlobalX+1,LocalY,GlobalZ))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceLeft],LocalX,LocalY,LocalZ,FaceRight,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+	endif
+	
+	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX-1,LocalY,GlobalZ)
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
+		side00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ-1))=0)
+		side01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY  ,GlobalZ+1))=0)
+		side10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ  ))=0)
+		side11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ  ))=0)
+		
+		corner00=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ-1))=0)
+		corner01=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY+1,GlobalZ+1))=0)
+		corner10=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ-1))=0)
+		corner11=(Voxel_IsOpaqueBlock(Voxel_GetBlockType(World,GlobalX-1,LocalY-1,GlobalZ+1))=0)
+		
+		A00=Voxel_GetVertexAO(side10,side00,corner00)
+		A01=Voxel_GetVertexAO(side10,side01,corner01)
+		A10=Voxel_GetVertexAO(side11,side01,corner11)
+		A11=Voxel_GetVertexAO(side11,side00,corner10)
+		
+		Flipped=1
+		if A00+A10<A01+A11 then Flipped=0
+		
+		LightValue=Core_Max(Voxel_GetBlockLight(World,GlobalX-1,LocalY,GlobalZ),Voxel_GetSunLight(World,GlobalX-1,LocalY,GlobalZ))/15.0*255
+		A00=LightValue-A00
+		A01=LightValue-A01
+		A10=LightValue-A10
+		A11=LightValue-A11
+		
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceRight],LocalX,LocalY,LocalZ,FaceLeft,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
 	endif
 endfunction
 
@@ -1315,15 +1703,24 @@ function Voxel_GetVertexAO(side1, side2, corner)
 endfunction Result
 
 // Populate the MeshObject with Data
-function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageData,X,Y,Z,FaceDir,A00,A01,A10,A11,Flipped)
+function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageData,X,Y,Z,FaceDir,A00,A01,A10,A11,Flipped,XOffset#,YOffset#,ZOffset#,XScale#,YScale#,ZScale#,UScale#,VScale#)
 	HalfFaceSize#=0.5	
 	TextureSize#=256
+	Scale#=1.0/16.0
+	
+	X1# = X-HalfFaceSize#+(XOffset#*Scale#)
+	X2# = X-HalfFaceSize#+(XOffset#*Scale#)+(HalfFaceSize#*XScale#*2)
+	Y1# = Y-HalfFaceSize#+(YOffset#*Scale#)
+	Y2# = Y-HalfFaceSize#+(YOffset#*Scale#)+(HalfFaceSize#*YScale#*2)
+	Z1# = Z-HalfFaceSize#+(ZOffset#*Scale#)
+	Z2# = Z-HalfFaceSize#+(ZOffset#*Scale#)+(HalfFaceSize#*ZScale#*2)
+	
 	Select FaceDir
 		case FaceUp
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X+HalfFaceSize#,Y+HalfFaceSize#,Z+HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X-HalfFaceSize#,Y+HalfFaceSize#,Z+HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X-HalfFaceSize#,Y+HalfFaceSize#,Z-HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X+HalfFaceSize#,Y+HalfFaceSize#,Z-HalfFaceSize#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X2#,Y2#,Z2#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X1#,Y2#,Z2#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X1#,Y2#,Z1#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X2#,Y2#,Z1#)
 			
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[0],0,1,0)
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[1],0,1,0)
@@ -1332,8 +1729,8 @@ function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageDa
 			
 			Left#=Subimage.X/TextureSize#
 			Top#=Subimage.Y/TextureSize#
-			Right#=(Subimage.X+Subimage.Width)/TextureSize#
-			Bottom#=(Subimage.Y+Subimage.Height)/TextureSize#
+			Right#=(Subimage.X+Subimage.Width*UScale#)/TextureSize#
+			Bottom#=(Subimage.Y+Subimage.Height*VScale#)/TextureSize#
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[0],Right#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[1],Left#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[2],Left#,Bottom#)
@@ -1355,10 +1752,10 @@ function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageDa
 //~			Voxel_SetObjectFaceBinormal(Voxel_TempVertex[3],0,0,1)
 		endcase
 		case FaceDown
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X-HalfFaceSize#,Y-HalfFaceSize#,Z+HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X+HalfFaceSize#,Y-HalfFaceSize#,Z+HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X+HalfFaceSize#,Y-HalfFaceSize#,Z-HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X-HalfFaceSize#,Y-HalfFaceSize#,Z-HalfFaceSize#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X1#,Y1#,Z2#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X2#,Y1#,Z2#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X2#,Y1#,Z1#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X1#,Y1#,Z1#)
 			
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[0],0,-1,0)
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[1],0,-1,0)
@@ -1367,8 +1764,8 @@ function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageDa
 			
 			Left#=Subimage.X/TextureSize#
 			Top#=Subimage.Y/TextureSize#
-			Right#=(Subimage.X+Subimage.Width)/TextureSize#
-			Bottom#=(Subimage.Y+Subimage.Height)/TextureSize#
+			Right#=(Subimage.X+Subimage.Width*UScale#)/TextureSize#
+			Bottom#=(Subimage.Y+Subimage.Height*VScale#)/TextureSize#
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[0],Right#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[1],Left#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[2],Left#,Bottom#)
@@ -1390,10 +1787,10 @@ function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageDa
 //~			Voxel_SetObjectFaceBinormal(Voxel_TempVertex[3],0,0,1)
 		endcase
 		case FaceFront
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X-HalfFaceSize#,Y+HalfFaceSize#,Z+HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X+HalfFaceSize#,Y+HalfFaceSize#,Z+HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X+HalfFaceSize#,Y-HalfFaceSize#,Z+HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X-HalfFaceSize#,Y-HalfFaceSize#,Z+HalfFaceSize#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X1#,Y2#,Z2#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X2#,Y2#,Z2#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X2#,Y1#,Z2#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X1#,Y1#,Z2#)
 			
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[0],0,0,1)
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[1],0,0,1)
@@ -1402,8 +1799,8 @@ function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageDa
 			
 			Left#=Subimage.X/TextureSize#
 			Top#=Subimage.Y/TextureSize#
-			Right#=(Subimage.X+Subimage.Width)/TextureSize#
-			Bottom#=(Subimage.Y+Subimage.Height)/TextureSize#
+			Right#=(Subimage.X+Subimage.Width*UScale#)/TextureSize#
+			Bottom#=(Subimage.Y+Subimage.Height*VScale#)/TextureSize#
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[0],Right#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[1],Left#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[2],Left#,Bottom#)
@@ -1425,10 +1822,10 @@ function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageDa
 //~			Voxel_SetObjectFaceBinormal(Voxel_TempVertex[3],0,1,0)
 		endcase
 		case FaceBack
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X+HalfFaceSize#,Y+HalfFaceSize#,Z-HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X-HalfFaceSize#,Y+HalfFaceSize#,Z-HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X-HalfFaceSize#,Y-HalfFaceSize#,Z-HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X+HalfFaceSize#,Y-HalfFaceSize#,Z-HalfFaceSize#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X2#,Y2#,Z1#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X1#,Y2#,Z1#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X1#,Y1#,Z1#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X2#,Y1#,Z1#)
 			
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[0],0,0,-1)
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[1],0,0,-1)
@@ -1437,8 +1834,8 @@ function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageDa
 			
 			Left#=Subimage.X/TextureSize#
 			Top#=Subimage.Y/TextureSize#
-			Right#=(Subimage.X+Subimage.Width)/TextureSize#
-			Bottom#=(Subimage.Y+Subimage.Height)/TextureSize#
+			Right#=(Subimage.X+Subimage.Width*UScale#)/TextureSize#
+			Bottom#=(Subimage.Y+Subimage.Height*VScale#)/TextureSize#
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[0],Right#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[1],Left#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[2],Left#,Bottom#)
@@ -1460,10 +1857,10 @@ function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageDa
 //~			Voxel_SetObjectFaceBinormal(Voxel_TempVertex[3],0,1,0)
 		endcase
 		case FaceRight
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X+HalfFaceSize#,Y+HalfFaceSize#,Z+HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X+HalfFaceSize#,Y+HalfFaceSize#,Z-HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X+HalfFaceSize#,Y-HalfFaceSize#,Z-HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X+HalfFaceSize#,Y-HalfFaceSize#,Z+HalfFaceSize#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X2#,Y2#,Z2#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X2#,Y2#,Z1#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X2#,Y1#,Z1#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X2#,Y1#,Z2#)
 			
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[0],1,0,0)
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[1],1,0,0)
@@ -1472,8 +1869,8 @@ function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageDa
 			
 			Left#=Subimage.X/TextureSize#
 			Top#=Subimage.Y/TextureSize#
-			Right#=(Subimage.X+Subimage.Width)/TextureSize#
-			Bottom#=(Subimage.Y+Subimage.Height)/TextureSize#
+			Right#=(Subimage.X+Subimage.Width*UScale#)/TextureSize#
+			Bottom#=(Subimage.Y+Subimage.Height*VScale#)/TextureSize#
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[0],Right#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[1],Left#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[2],Left#,Bottom#)
@@ -1495,10 +1892,10 @@ function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageDa
 //~			Voxel_SetObjectFaceBinormal(Voxel_TempVertex[3],0,1,0)
 		endcase
 		case FaceLeft
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X-HalfFaceSize#,Y+HalfFaceSize#,Z-HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X-HalfFaceSize#,Y+HalfFaceSize#,Z+HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X-HalfFaceSize#,Y-HalfFaceSize#,Z+HalfFaceSize#)
-			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X-HalfFaceSize#,Y-HalfFaceSize#,Z-HalfFaceSize#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[0],X1#,Y2#,Z1#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[1],X1#,Y2#,Z2#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[2],X1#,Y1#,Z2#)
+			Voxel_SetObjectFacePosition(Voxel_TempVertex[3],X1#,Y1#,Z1#)
 			
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[0],-1,0,0)
 			Voxel_SetObjectFaceNormal(Voxel_TempVertex[1],-1,0,0)
@@ -1507,8 +1904,8 @@ function Voxel_AddFaceToObject(Object ref as MeshData,Subimage ref as SubimageDa
 			
 			Left#=Subimage.X/TextureSize#
 			Top#=Subimage.Y/TextureSize#
-			Right#=(Subimage.X+Subimage.Width)/TextureSize#
-			Bottom#=(Subimage.Y+Subimage.Height)/TextureSize#
+			Right#=(Subimage.X+Subimage.Width*UScale#)/TextureSize#
+			Bottom#=(Subimage.Y+Subimage.Height*VScale#)/TextureSize#
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[0],Right#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[1],Left#,Top#)
 			Voxel_SetObjectFaceUV(Voxel_TempVertex[2],Left#,Bottom#)

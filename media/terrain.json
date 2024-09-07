@@ -1753,6 +1753,7 @@
 			"name$": "Cauldron",
 			"solid": 1,
 			"opaque": 0,
+			"joinface": 0,
             "frontid": 154, 
             "backid": 154, 
             "upid": 138, 

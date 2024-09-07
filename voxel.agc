@@ -944,7 +944,8 @@ endfunction
 //~endfunction 0
 
 function Voxel_JoinFace(CurrentBlockType, NeighbourBlockType)
-    if CurrentBlockType = 0 or NeighbourBlockType = 0 then exitfunction 0
+	if CurrentBlockType = 0 or NeighbourBlockType = 0 then exitfunction 0
+	if Voxel_Blocks.Attributes[CurrentBlockType-1].JoinFace = 0 then exitfunction 0
 //~    if Voxel_Blocks.Attributes[CurrentBlockType-1].JoinFace
 //~    	exitfunction (CurrentBlockType = NeighbourBlockType)
 //~    endif

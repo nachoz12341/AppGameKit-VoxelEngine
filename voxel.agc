@@ -1169,7 +1169,7 @@ function Voxel_GenerateSlabFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyX1+skyZ0+sky10
 		skyA11=SkyLightValue+skyX1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY+1,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY+1,GlobalZ)
 
 		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
 		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
@@ -1221,17 +1221,17 @@ function Voxel_GenerateSlabFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyX1+skyZ0+sky10
 		skyA11=SkyLightValue+skyX1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY-1,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY-1,GlobalZ)
 
-		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
-		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
-		blockZ0=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ-1)
-		blockZ1=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ+1)
+		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ  )
+		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ  )
+		blockZ0=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ-1)
+		blockZ1=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ+1)
 		
-		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ-1)
-		block01=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ+1)
-		block10=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ-1)
-		block11=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ+1)
+		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
+		block01=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
+		block10=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ-1)
+		block11=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ+1)
 		
 		blockA00=BlockLightValue+blockX0+blockZ0+block00
 		blockA01=BlockLightValue+blockX0+blockZ1+block01
@@ -1255,7 +1255,7 @@ function Voxel_GenerateSlabFaces(Object ref as MeshData,World ref as WorldData,L
 	endif
 	
 	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX,LocalY,GlobalZ+1)
-	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))		
+	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
 		SkyLightValue=Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ+1)
 
 		skyX0=Voxel_GetSunLight(World,GlobalX-1,LocalY  ,GlobalZ+1)
@@ -1273,11 +1273,11 @@ function Voxel_GenerateSlabFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyX1+skyY0+sky10
 		skyA11=SkyLightValue+skyX1+skyY1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ+1)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ+1)
 
 		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ+1)
 		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ+1)
-		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ+1)
+		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ+1)
 		blockY1=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ+1)
 		
 		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
@@ -1325,11 +1325,11 @@ function Voxel_GenerateSlabFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyX1+skyY0+sky10
 		skyA11=SkyLightValue+skyX1+skyY1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ-1)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ-1)
 
 		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
 		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
-		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ-1)
+		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ-1)
 		blockY1=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ-1)
 		
 		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
@@ -1377,22 +1377,22 @@ function Voxel_GenerateSlabFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyY1+skyZ0+sky10
 		skyA11=SkyLightValue+skyY1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX+1,LocalY,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX+1,LocalY,GlobalZ)
 
-		blockY0=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
+		blockY0=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ  )
 		blockY1=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
 		blockZ0=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
-		blockZ1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
+		blockZ1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ+1)
 		
 		block00=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ-1)
 		block01=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ+1)
 		block10=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ-1)
 		block11=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ+1)
 		
-		blockA00=BlockLightValue+blockX0+blockY0+block00
-		blockA01=BlockLightValue+blockX0+blockY1+block01
-		blockA10=BlockLightValue+blockX1+blockY0+block10
-		blockA11=BlockLightValue+blockX1+blockY1+block11
+		blockA00=BlockLightValue+blockY0+blockZ0+block00
+		blockA01=BlockLightValue+blockY0+blockZ1+block01
+		blockA10=BlockLightValue+blockY1+blockZ0+block10
+		blockA11=BlockLightValue+blockY1+blockZ1+block11
 
 		A00=Core_Max(skyA00,blockA00)
 		A01=Core_Max(skyA01,blockA01)
@@ -1429,22 +1429,22 @@ function Voxel_GenerateSlabFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyY1+skyZ0+sky10
 		skyA11=SkyLightValue+skyY1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX-1,LocalY,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX-1,LocalY,GlobalZ)
 
-		blockY0=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
+		blockY0=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ  )
 		blockY1=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
 		blockZ0=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
-		blockZ1=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
+		blockZ1=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ+1)
 		
 		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
 		block01=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
 		block10=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ-1)
 		block11=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ+1)
 		
-		blockA00=BlockLightValue+blockX0+blockY0+block00
-		blockA01=BlockLightValue+blockX0+blockY1+block01
-		blockA10=BlockLightValue+blockX1+blockY0+block10
-		blockA11=BlockLightValue+blockX1+blockY1+block11
+		blockA00=BlockLightValue+blockY0+blockZ0+block00
+		blockA01=BlockLightValue+blockY0+blockZ1+block01
+		blockA10=BlockLightValue+blockY1+blockZ0+block10
+		blockA11=BlockLightValue+blockY1+blockZ1+block11
 
 		A00=Core_Max(skyA00,blockA00)
 		A01=Core_Max(skyA01,blockA01)
@@ -1458,7 +1458,6 @@ function Voxel_GenerateSlabFaces(Object ref as MeshData,World ref as WorldData,L
 		A01=(A01/4)/15.0*255
 		A10=(A10/4)/15.0*255
 		A11=(A11/4)/15.0*255
-		
 		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceLeft],LocalX,LocalY,LocalZ,FaceLeft,A00,A01,A10,A11,Flipped,0,0,0,1,0.5,1,1,0.5)
 	endif
 endfunction
@@ -1493,7 +1492,7 @@ function Voxel_GenerateCactusFaces(Object ref as MeshData,World ref as WorldData
 		skyA10=SkyLightValue+skyX1+skyZ0+sky10
 		skyA11=SkyLightValue+skyX1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY+1,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY+1,GlobalZ)
 
 		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
 		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
@@ -1522,7 +1521,6 @@ function Voxel_GenerateCactusFaces(Object ref as MeshData,World ref as WorldData
 		A01=(A01/4)/15.0*255
 		A10=(A10/4)/15.0*255
 		A11=(A11/4)/15.0*255
-		
 		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceUp],LocalX,LocalY,LocalZ,FaceUp,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
 	endif
 	
@@ -1545,17 +1543,17 @@ function Voxel_GenerateCactusFaces(Object ref as MeshData,World ref as WorldData
 		skyA10=SkyLightValue+skyX1+skyZ0+sky10
 		skyA11=SkyLightValue+skyX1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY-1,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY-1,GlobalZ)
 
-		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
-		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
-		blockZ0=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ-1)
-		blockZ1=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ+1)
+		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ  )
+		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ  )
+		blockZ0=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ-1)
+		blockZ1=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ+1)
 		
-		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ-1)
-		block01=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ+1)
-		block10=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ-1)
-		block11=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ+1)
+		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
+		block01=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
+		block10=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ-1)
+		block11=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ+1)
 		
 		blockA00=BlockLightValue+blockX0+blockZ0+block00
 		blockA01=BlockLightValue+blockX0+blockZ1+block01
@@ -1597,11 +1595,11 @@ function Voxel_GenerateCactusFaces(Object ref as MeshData,World ref as WorldData
 		skyA10=SkyLightValue+skyX1+skyY0+sky10
 		skyA11=SkyLightValue+skyX1+skyY1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ+1)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ+1)
 
 		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ+1)
 		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ+1)
-		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ+1)
+		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ+1)
 		blockY1=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ+1)
 		
 		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
@@ -1649,11 +1647,11 @@ function Voxel_GenerateCactusFaces(Object ref as MeshData,World ref as WorldData
 		skyA10=SkyLightValue+skyX1+skyY0+sky10
 		skyA11=SkyLightValue+skyX1+skyY1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ-1)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ-1)
 
 		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
 		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
-		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ-1)
+		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ-1)
 		blockY1=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ-1)
 		
 		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
@@ -1684,39 +1682,39 @@ function Voxel_GenerateCactusFaces(Object ref as MeshData,World ref as WorldData
 	
 	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX+1,LocalY,GlobalZ)
 	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
-		SkyLightValue=Voxel_GetSunLight(World,GlobalX-1,LocalY,GlobalZ)
+		SkyLightValue=Voxel_GetSunLight(World,GlobalX+1,LocalY,GlobalZ)
 
-		skyY0=Voxel_GetSunLight(World,GlobalX-1,LocalY-1,GlobalZ  )
-		skyY1=Voxel_GetSunLight(World,GlobalX-1,LocalY+1,GlobalZ  )
-		skyZ0=Voxel_GetSunLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
-		skyZ1=Voxel_GetSunLight(World,GlobalX-1,LocalY  ,GlobalZ+1)
+		skyY0=Voxel_GetSunLight(World,GlobalX+1,LocalY-1,GlobalZ  )
+		skyY1=Voxel_GetSunLight(World,GlobalX+1,LocalY+1,GlobalZ  )
+		skyZ0=Voxel_GetSunLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
+		skyZ1=Voxel_GetSunLight(World,GlobalX+1,LocalY  ,GlobalZ+1)
 		
-		sky00=Voxel_GetSunLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
-		sky01=Voxel_GetSunLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
-		sky10=Voxel_GetSunLight(World,GlobalX-1,LocalY+1,GlobalZ-1)
-		sky11=Voxel_GetSunLight(World,GlobalX-1,LocalY+1,GlobalZ+1)
+		sky00=Voxel_GetSunLight(World,GlobalX+1,LocalY-1,GlobalZ-1)
+		sky01=Voxel_GetSunLight(World,GlobalX+1,LocalY-1,GlobalZ+1)
+		sky10=Voxel_GetSunLight(World,GlobalX+1,LocalY+1,GlobalZ-1)
+		sky11=Voxel_GetSunLight(World,GlobalX+1,LocalY+1,GlobalZ+1)
 		
 		skyA00=SkyLightValue+skyY0+skyZ0+sky00
 		skyA01=SkyLightValue+skyY0+skyZ1+sky01
 		skyA10=SkyLightValue+skyY1+skyZ0+sky10
 		skyA11=SkyLightValue+skyY1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX-1,LocalY,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX+1,LocalY,GlobalZ)
 
-		blockY0=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
-		blockY1=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
-		blockZ0=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
-		blockZ1=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
+		blockY0=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ  )
+		blockY1=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
+		blockZ0=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
+		blockZ1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ+1)
 		
-		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
-		block01=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
-		block10=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ-1)
-		block11=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ+1)
+		block00=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ-1)
+		block01=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ+1)
+		block10=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ-1)
+		block11=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ+1)
 		
-		blockA00=BlockLightValue+blockX0+blockY0+block00
-		blockA01=BlockLightValue+blockX0+blockY1+block01
-		blockA10=BlockLightValue+blockX1+blockY0+block10
-		blockA11=BlockLightValue+blockX1+blockY1+block11
+		blockA00=BlockLightValue+blockY0+blockZ0+block00
+		blockA01=BlockLightValue+blockY0+blockZ1+block01
+		blockA10=BlockLightValue+blockY1+blockZ0+block10
+		blockA11=BlockLightValue+blockY1+blockZ1+block11
 
 		A00=Core_Max(skyA00,blockA00)
 		A01=Core_Max(skyA01,blockA01)
@@ -1736,39 +1734,39 @@ function Voxel_GenerateCactusFaces(Object ref as MeshData,World ref as WorldData
 	
 	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX-1,LocalY,GlobalZ)
 	if not(Voxel_IsOpaqueBlock(NeighbourBlockType) or Voxel_JoinFace(CurrentBlockType,NeighbourBlockType))
-		SkyLightValue=Voxel_GetSunLight(World,GlobalX+1,LocalY,GlobalZ)
+		SkyLightValue=Voxel_GetSunLight(World,GlobalX-1,LocalY,GlobalZ)
 
-		skyY0=Voxel_GetSunLight(World,GlobalX+1,LocalY-1,GlobalZ  )
-		skyY1=Voxel_GetSunLight(World,GlobalX+1,LocalY+1,GlobalZ  )
-		skyZ0=Voxel_GetSunLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
-		skyZ1=Voxel_GetSunLight(World,GlobalX+1,LocalY  ,GlobalZ+1)
+		skyY0=Voxel_GetSunLight(World,GlobalX-1,LocalY-1,GlobalZ  )
+		skyY1=Voxel_GetSunLight(World,GlobalX-1,LocalY+1,GlobalZ  )
+		skyZ0=Voxel_GetSunLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
+		skyZ1=Voxel_GetSunLight(World,GlobalX-1,LocalY  ,GlobalZ+1)
 		
-		sky00=Voxel_GetSunLight(World,GlobalX+1,LocalY-1,GlobalZ-1)
-		sky01=Voxel_GetSunLight(World,GlobalX+1,LocalY-1,GlobalZ+1)
-		sky10=Voxel_GetSunLight(World,GlobalX+1,LocalY+1,GlobalZ-1)
-		sky11=Voxel_GetSunLight(World,GlobalX+1,LocalY+1,GlobalZ+1)
+		sky00=Voxel_GetSunLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
+		sky01=Voxel_GetSunLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
+		sky10=Voxel_GetSunLight(World,GlobalX-1,LocalY+1,GlobalZ-1)
+		sky11=Voxel_GetSunLight(World,GlobalX-1,LocalY+1,GlobalZ+1)
 		
 		skyA00=SkyLightValue+skyY0+skyZ0+sky00
 		skyA01=SkyLightValue+skyY0+skyZ1+sky01
 		skyA10=SkyLightValue+skyY1+skyZ0+sky10
 		skyA11=SkyLightValue+skyY1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX+1,LocalY,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX-1,LocalY,GlobalZ)
 
-		blockY0=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
-		blockY1=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
-		blockZ0=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
-		blockZ1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
+		blockY0=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ  )
+		blockY1=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
+		blockZ0=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
+		blockZ1=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ+1)
 		
-		block00=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ-1)
-		block01=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ+1)
-		block10=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ-1)
-		block11=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ+1)
+		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
+		block01=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
+		block10=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ-1)
+		block11=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ+1)
 		
-		blockA00=BlockLightValue+blockX0+blockY0+block00
-		blockA01=BlockLightValue+blockX0+blockY1+block01
-		blockA10=BlockLightValue+blockX1+blockY0+block10
-		blockA11=BlockLightValue+blockX1+blockY1+block11
+		blockA00=BlockLightValue+blockY0+blockZ0+block00
+		blockA01=BlockLightValue+blockY0+blockZ1+block01
+		blockA10=BlockLightValue+blockY1+blockZ0+block10
+		blockA11=BlockLightValue+blockY1+blockZ1+block11
 
 		A00=Core_Max(skyA00,blockA00)
 		A01=Core_Max(skyA01,blockA01)
@@ -1817,7 +1815,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyX1+skyZ0+sky10
 		skyA11=SkyLightValue+skyX1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY+1,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY+1,GlobalZ)
 
 		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
 		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
@@ -1869,17 +1867,17 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyX1+skyZ0+sky10
 		skyA11=SkyLightValue+skyX1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY-1,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY-1,GlobalZ)
 
-		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
-		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
-		blockZ0=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ-1)
-		blockZ1=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ+1)
+		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ  )
+		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ  )
+		blockZ0=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ-1)
+		blockZ1=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ+1)
 		
-		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ-1)
-		block01=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ+1)
-		block10=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ-1)
-		block11=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ+1)
+		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
+		block01=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
+		block10=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ-1)
+		block11=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ+1)
 		
 		blockA00=BlockLightValue+blockX0+blockZ0+block00
 		blockA01=BlockLightValue+blockX0+blockZ1+block01
@@ -1921,11 +1919,11 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyX1+skyY0+sky10
 		skyA11=SkyLightValue+skyX1+skyY1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ+1)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ+1)
 
 		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ+1)
 		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ+1)
-		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ+1)
+		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ+1)
 		blockY1=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ+1)
 		
 		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
@@ -1973,11 +1971,11 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyX1+skyY0+sky10
 		skyA11=SkyLightValue+skyX1+skyY1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX,LocalY,GlobalZ-1)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX,LocalY,GlobalZ-1)
 
 		blockX0=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
 		blockX1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
-		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ-1)
+		blockY0=Voxel_GetBlockLight(World,GlobalX,  LocalY-1,GlobalZ-1)
 		blockY1=Voxel_GetBlockLight(World,GlobalX,  LocalY+1,GlobalZ-1)
 		
 		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
@@ -2025,22 +2023,22 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyY1+skyZ0+sky10
 		skyA11=SkyLightValue+skyY1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX+1,LocalY,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX+1,LocalY,GlobalZ)
 
-		blockY0=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
+		blockY0=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ  )
 		blockY1=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ  )
 		blockZ0=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
-		blockZ1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ-1)
+		blockZ1=Voxel_GetBlockLight(World,GlobalX+1,LocalY  ,GlobalZ+1)
 		
 		block00=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ-1)
 		block01=Voxel_GetBlockLight(World,GlobalX+1,LocalY-1,GlobalZ+1)
 		block10=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ-1)
 		block11=Voxel_GetBlockLight(World,GlobalX+1,LocalY+1,GlobalZ+1)
 		
-		blockA00=BlockLightValue+blockX0+blockY0+block00
-		blockA01=BlockLightValue+blockX0+blockY1+block01
-		blockA10=BlockLightValue+blockX1+blockY0+block10
-		blockA11=BlockLightValue+blockX1+blockY1+block11
+		blockA00=BlockLightValue+blockY0+blockZ0+block00
+		blockA01=BlockLightValue+blockY0+blockZ1+block01
+		blockA10=BlockLightValue+blockY1+blockZ0+block10
+		blockA11=BlockLightValue+blockY1+blockZ1+block11
 
 		A00=Core_Max(skyA00,blockA00)
 		A01=Core_Max(skyA01,blockA01)
@@ -2055,7 +2053,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A10=(A10/4)/15.0*255
 		A11=(A11/4)/15.0*255
 		
-		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceLeft],LocalX,LocalY,LocalZ,FaceRight,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceRight],LocalX,LocalY,LocalZ,FaceRight,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
 	endif
 	
 	NeighbourBlockType=Voxel_GetBlockType(World,GlobalX-1,LocalY,GlobalZ)
@@ -2077,22 +2075,22 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		skyA10=SkyLightValue+skyY1+skyZ0+sky10
 		skyA11=SkyLightValue+skyY1+skyZ1+sky11
 
-		BlockLightValue=Voxel_GetSunLight(World,GlobalX-1,LocalY,GlobalZ)
+		BlockLightValue=Voxel_GetBlockLight(World,GlobalX-1,LocalY,GlobalZ)
 
-		blockY0=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
+		blockY0=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ  )
 		blockY1=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ  )
 		blockZ0=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
-		blockZ1=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ-1)
+		blockZ1=Voxel_GetBlockLight(World,GlobalX-1,LocalY  ,GlobalZ+1)
 		
 		block00=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ-1)
 		block01=Voxel_GetBlockLight(World,GlobalX-1,LocalY-1,GlobalZ+1)
 		block10=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ-1)
 		block11=Voxel_GetBlockLight(World,GlobalX-1,LocalY+1,GlobalZ+1)
 		
-		blockA00=BlockLightValue+blockX0+blockY0+block00
-		blockA01=BlockLightValue+blockX0+blockY1+block01
-		blockA10=BlockLightValue+blockX1+blockY0+block10
-		blockA11=BlockLightValue+blockX1+blockY1+block11
+		blockA00=BlockLightValue+blockY0+blockZ0+block00
+		blockA01=BlockLightValue+blockY0+blockZ1+block01
+		blockA10=BlockLightValue+blockY1+blockZ0+block10
+		blockA11=BlockLightValue+blockY1+blockZ1+block11
 
 		A00=Core_Max(skyA00,blockA00)
 		A01=Core_Max(skyA01,blockA01)
@@ -2107,7 +2105,7 @@ function Voxel_GenerateCubeFaces(Object ref as MeshData,World ref as WorldData,L
 		A10=(A10/4)/15.0*255
 		A11=(A11/4)/15.0*255
 		
-		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceRight],LocalX,LocalY,LocalZ,FaceLeft,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
+		Voxel_AddFaceToObject(Object,Voxel_TempSubimages[FaceLeft],LocalX,LocalY,LocalZ,FaceLeft,A00,A01,A10,A11,Flipped,0,0,0,1,1,1,1,1)
 	endif
 endfunction
 

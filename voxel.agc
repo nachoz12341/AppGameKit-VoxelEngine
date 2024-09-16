@@ -617,13 +617,13 @@ function Voxel_UpdateBlockLight(World ref as WorldData,ChunkX,ChunkZ,LocalX,Loca
 			NeighbourChunkZ=trunc(NeighbourZ/Voxel_ChunkSize)
 			
 			if Voxel_IsTransparentBlock(World.Chunk[NeighbourChunkX,NeighbourChunkZ].BlockType[NeighbourLocalX,NeighbourY,NeighbourLocalZ])=1
-				CurrentBlockLight=Voxel_GetBlockLight(World,GlobalX,GlobalY,GlobalZ)
-				if CurrentBlockLight>World.Chunk[NeighbourChunkX,NeighbourChunkZ].BlockLight[NeighbourLocalX,NeighbourY,NeighbourLocalZ]+1
+				CurrentBlockLight=Voxel_GetBlockLight(World,GlobalX,GlobalY,GlobalZ)-1
+				if CurrentBlockLight>World.Chunk[NeighbourChunkX,NeighbourChunkZ].BlockLight[NeighbourLocalX,NeighbourY,NeighbourLocalZ]
 					FrontierTemp.X=NeighbourX
 					FrontierTemp.Y=NeighbourY
 					FrontierTemp.Z=NeighbourZ
 					Frontier.insert(FrontierTemp)
-					World.Chunk[NeighbourChunkX,NeighbourChunkZ].BlockLight[NeighbourLocalX,NeighbourY,NeighbourLocalZ]=CurrentBlockLight-1
+					World.Chunk[NeighbourChunkX,NeighbourChunkZ].BlockLight[NeighbourLocalX,NeighbourY,NeighbourLocalZ]=CurrentBlockLight
 					
 					Voxel_AddChunktoLoadList(NeighbourChunkX,NeighbourChunkZ)
 				endif
@@ -683,7 +683,7 @@ function Voxel_UpdateBlockShadow(World ref as WorldData,ChunkX,ChunkZ,LocalX,Loc
 						TempSpreadLight.X=NeighbourX
 						TempSpreadLight.Y=NeighbourY
 						TempSpreadLight.Z=NeighbourZ
-						TempSpreadLight.Light=NeighbourBlockLight
+						TempSpreadLight.Light=NeighbourBlockLight-2
 						Voxel_SpreadLight.insert(TempSpreadLight)
 					endif
 				endif
